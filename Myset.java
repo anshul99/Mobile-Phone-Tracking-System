@@ -1,40 +1,81 @@
 public class Myset
 {
-    public static void main(String[] args)
-    {
-        try
-        {
-            Myset a = new Myset();
-            System.out.println(a.IsEmpty());
-            a.Insert(1);
-            a.Insert(2);
-            a.Insert(3);
-            a.Insert(4);
-            a.Insert(5);
-            System.out.println(a.IsEmpty());
-
-            Myset b = new Myset();
-            b.Insert(4);
-            b.Insert(3);
-            b.Insert(0);
-            b.Insert(9);
-            b.Insert(7);
-            b.Insert(-1);
-            System.out.println(a.IsMember(1));
-            System.out.println(a.IsMember(7));
-            System.out.println(a);
-            a.Delete(3);
-            System.out.println(a);
-            System.out.println(b);
-            System.out.println(a.Union(b));
-            System.out.println(a.Intersection(b));
-        }
-        catch (Exception e)
-        {
-            System.out.println("Except");
-        }
-    }
-
+	LinkedList l = new LinkedList();
+	public boolean IsEmpty()
+	{
+		return l.isEmpty();
+	}
+	public boolean IsMember(Object o)
+	{
+		if (l.search(o) != null)
+			return true;
+		else
+			return false;
+	}
+	public void Insert(Object o) throws Exception
+	{
+		if (IsMember(o) == false)
+		{
+			l.addFront(o);
+		}
+		else
+			throw new Exception();
+	}
+	public void Delete(Object o) throws Exception
+	{
+		LinkedList.Node n = l.search(o);
+		if (n != null)
+			l.remove(n);
+		else
+			throw new Exception();
+	}
+	public Myset Union(Myset a)
+	{
+		Myset s = new Myset();
+		LinkedList l2 = a.l;
+		LinkedList.Node n1 = l.head;
+		LinkedList.Node n2 = l2.head;
+		while (n1 != null)
+		{
+			try
+			{
+				s.Insert(n1.data);
+			}
+			catch (Exception e)
+			{}
+			n1 = n1.next;
+		}
+		while (n2 != null)
+		{
+			try
+			{
+				s.Insert(n2.data);
+			}
+			catch (Exception e)
+			{}
+			n2 = n2.next;
+		}
+		return s;
+	}
+	public Myset Intersection(Myset a)
+	{
+		Myset s = new Myset();
+		LinkedList.Node n1 = l.head;
+		while(n1 != null)
+		{
+			if (a.IsMember(n1.data))
+			{
+				try
+				{
+					s.Insert(n1.data);
+				}
+				catch(Exception e)
+				{}
+			}
+			n1 = n1.next;
+		}
+		return s;
+	}
 }
 
 class LinkedList
@@ -51,45 +92,10 @@ class LinkedList
             parent = null;
         }
     }
-    Node head;
-    Node tail;
-    int size;
-
-    public int size()
-    {
-        return size;
-    }
-
-    public String toString()
-    {
-        String str= "";
-        String temp = "";
-        Node itr = head;
-        while(itr != null)
-        {
-            temp = itr.data.toString();
-            if(!temp.equals(""))
-            {
-                str = str+", "+temp;
-            }
-            itr = itr.next;
-        }
-        if(str.equals(""))
-        {
-            return str;
-        }
-        else
-        {
-            return str.substring(2);
-        }
-    }
-
-    public Node Head()
-    {
-        return head;
-    }
-
-    public Node Search(Object obj)
+    Node head = new Node(null);
+    Node tail = new Node(null);
+    int size = 0;
+    public Node search(Object obj)
     {
         Node itr = head;
         while(itr != null && obj != itr.data)
@@ -99,30 +105,22 @@ class LinkedList
         return itr;
     }
 
-    public boolean IsEmpty()
+    public boolean isEmpty()
     {
         return size==0;
     }
 
-    public boolean Add(Object data)
+    public void addFront(Object data)
     {
-        if(head==null)
-        {
-            head = new Node(data);
-            tail = head;
-        }
-        else
-        {
-            Node temp = new Node(data);
-            tail.next = temp;
-            temp.parent = tail;
-            tail = temp;
-        }
+        
+    	Node node = new Node(data);
+    	node.next = head;
+    	head.parent = node;
+        head = node;
         size++;
-        return true;
     }
 
-    public Node Remove(Node node)
+    public void remove(Node node)
     {
         size--;
         if(node == head)
@@ -140,40 +138,15 @@ class LinkedList
         }
         else
         {
-            node.parent.next = node.next;
-            if(node.next != null)
+        	node.parent.next = node.next;
+            if(node != tail)
             {
-                node.next.parent = node.parent;
+            	node.next.parent = node.parent;
             }
             else
             {
                 tail = node.parent;
             }
-        }
-        return node.next;
-    }
-
-    public Object Remove()
-    {
-        if(head == null)
-        {
-            throw new IllegalStateException();
-        }
-        if(head == tail)
-        {
-            Object temp = head.data;
-            head = null;
-            tail = null;
-            size--;
-            return temp;
-        }
-        else
-        {
-            Object data = head.data;
-            head = head.next;
-            head.parent = null;
-            size--;
-            return data;
         }
     }
 }
