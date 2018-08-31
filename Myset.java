@@ -7,10 +7,10 @@ public class Myset
 	}
 	public boolean IsMember(Object o)
 	{
-		if (l.search(o) != null)
-			return true;
-		else
+		if (l.search(o) == -1)
 			return false;
+		else
+			return true;
 	}
 	public void Insert(Object o) throws Exception
 	{
@@ -23,8 +23,8 @@ public class Myset
 	}
 	public void Delete(Object o) throws Exception
 	{
-		LinkedList.Node n = l.search(o);
-		if (n != null)
+		int n = l.search(o);
+		if (IsMember(o))
 			l.remove(n);
 		else
 			throw new Exception();
@@ -84,25 +84,26 @@ class LinkedList
     {
         Object data;
         Node next;
-        Node parent;
         public Node(Object obj)
         {
             data = obj;
             next = null;
-            parent = null;
         }
     }
     Node head = new Node(null);
-    Node tail = new Node(null);
     int size = 0;
-    public Node search(Object obj)
+    public int search(Object obj)
     {
         Node itr = head;
-        while(itr != null && obj != itr.data)
+        int cnt = 0;
+        while(itr != null)
         {
+            if (itr.data == obj)
+            	return cnt;
             itr = itr.next;
+            cnt ++;
         }
-        return itr;
+        return -1;
     }
 
     public boolean isEmpty()
@@ -115,38 +116,23 @@ class LinkedList
         
     	Node node = new Node(data);
     	node.next = head;
-    	head.parent = node;
         head = node;
         size++;
     }
 
-    public void remove(Node node)
+    public void remove(int cnt)
     {
-        size--;
-        if(node == head)
+        Node n = head;
+    	if(cnt == 0)
         {
-            if(head == tail)
-            {
-                head = null;
-                tail = null;
-            }
-            else
-            {
-                head = head.next;
-                head.parent = null;
-            }
+            head = head.next;
         }
         else
         {
-        	node.parent.next = node.next;
-            if(node != tail)
-            {
-            	node.next.parent = node.parent;
-            }
-            else
-            {
-                tail = node.parent;
-            }
+        	for(int i=0;i<cnt-1;i++)
+        		n = n.next;
+        	n.next = n.next.next;
         }
+        size--;
     }
 }
