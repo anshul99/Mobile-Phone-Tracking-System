@@ -15,9 +15,7 @@ public class Myset
 	public void Insert(Object o) throws Exception
 	{
 		if (IsMember(o) == false)
-		{
 			l.addFront(o);
-		}
 		else
 			throw new Exception();
 	}
