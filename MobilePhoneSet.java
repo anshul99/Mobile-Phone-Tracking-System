@@ -1,7 +1,7 @@
 public class MobilePhoneSet
 {
 	Myset mobileset = new Myset();
-	public void Insert(MobilePhone m)
+	public void Insert(MobilePhone m) throws Exception
 	{
 		try 
 		{
@@ -9,7 +9,7 @@ public class MobilePhoneSet
 		}
 		catch (Exception e)
 		{
-			System.out.println("Already registered");
+			throw new Exception("Already registered");
 		}
 	}
 }

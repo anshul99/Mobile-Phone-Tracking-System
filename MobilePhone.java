@@ -30,6 +30,6 @@ public class MobilePhone
 			return base;
 		}
 		else
-			throw new Exception();
+			throw new Exception("Phone is off");
 	}
 }
