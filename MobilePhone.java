@@ -32,4 +32,8 @@ public class MobilePhone
 		else
 			throw new Exception("Phone is off");
 	}
+	public void setBase(Exchange b)
+	{
+		base = b;
+	}
 }
