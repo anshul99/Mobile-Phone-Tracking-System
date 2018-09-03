@@ -1,6 +1,10 @@
 public class MobilePhoneSet
 {
-	Myset mobileset = new Myset();
+	private Myset mobileset = new Myset();
+	public Myset mobset()
+	{
+		return mobileset;
+	}
 	public void Insert(MobilePhone m) throws Exception
 	{
 		try 
@@ -9,7 +13,7 @@ public class MobilePhoneSet
 		}
 		catch (Exception e)
 		{
-			throw new Exception("Already registered");
+			throw new Exception("Mobile phone " + m.number() + " is already registered");
 		}
 	}
 	public void Delete(MobilePhone m) throws Exception
@@ -20,15 +24,26 @@ public class MobilePhoneSet
 		}
 		catch (Exception e)
 		{
-			throw new Exception("Already unregistered");
+			throw new Exception("Mobile phone " + m.number() + " not found");
 		}
-	}
-	public boolean search(MobilePhone m)
-	{
-		return mobileset.IsMember(m);
 	}
 	public int getSize()
 	{
-		return mobileset.l.size;
+		return mobileset.list().getSize();
+	}
+	public MobilePhone search(int num)
+	{
+		
+		LinkedList.Node n = mobileset.list().getHead();
+		for(int i=0;i<getSize();i++)
+		{
+			MobilePhone m = (MobilePhone) n.data();
+			if (m.number() == num)
+			{
+				return m;
+			}
+			n = n.next();
+		}
+		return null;
 	}
 }

@@ -2,33 +2,41 @@ public class LinkedList
 {
     class Node
     {
-        Object data;
-        Node next;
+        private Object data;
+        private Node next;
         public Node(Object obj)
         {
             data = obj;
             next = null;
         }
-        public Object getData()
+        public Object data()
         {
         	return data;
         }
+        public Node next()
+        {
+        	return next;
+        }
     }
-    Node head = new Node(null);
-    int size = 0;
+    private Node head = new Node(null);
+    private int size = 0;
     public Node getHead()
     {
     	return head;
     }
+    public int getSize()
+    {
+    	return size;
+    }
     public int search(Object obj)
     {
-        Node itr = head;
+        Node n = head;
         int cnt = 0;
-        while(itr != null)
+        while(n != null)
         {
-            if (itr.data == obj)
+            if (n.data == obj)
             	return cnt;
-            itr = itr.next;
+            n = n.next;
             cnt ++;
         }
         return -1;
@@ -39,13 +47,22 @@ public class LinkedList
         return size==0;
     }
 
-    public void addFront(Object data)
+    public void addRear(Object data)
     {
         
     	Node node = new Node(data);
-    	node.next = head;
-        head = node;
-        size++;
+    	if (isEmpty())
+    	{
+    		head = node;
+    	}
+    	else
+    	{
+    		Node n = head;
+    		while(n.next != null)
+    			n = n.next;
+    		n.next = node;
+    	}
+    	size++;
     }
 
     public void remove(int cnt)

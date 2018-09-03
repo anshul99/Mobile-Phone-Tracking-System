@@ -1,6 +1,10 @@
 public class Myset
 {
-	LinkedList l = new LinkedList();
+	private LinkedList l = new LinkedList();
+	public LinkedList list()
+	{
+		return l;
+	}
 	public boolean IsEmpty()
 	{
 		return l.isEmpty();
@@ -16,7 +20,7 @@ public class Myset
 	{
 		if (IsMember(o) == false)
 		{
-			l.addFront(o);
+			l.addRear(o);
 		}
 		else
 			throw new Exception();
@@ -33,46 +37,46 @@ public class Myset
 	{
 		Myset s = new Myset();
 		LinkedList l2 = a.l;
-		LinkedList.Node n1 = l.head;
-		LinkedList.Node n2 = l2.head;
+		LinkedList.Node n1 = l.getHead();
+		LinkedList.Node n2 = l2.getHead();
 		while (n1 != null)
 		{
 			try
 			{
-				s.Insert(n1.data);
+				s.Insert(n1.data());
 			}
 			catch (Exception e)
 			{}
-			n1 = n1.next;
+			n1 = n1.next();
 		}
 		while (n2 != null)
 		{
 			try
 			{
-				s.Insert(n2.data);
+				s.Insert(n2.data());
 			}
 			catch (Exception e)
 			{}
-			n2 = n2.next;
+			n2 = n2.next();
 		}
 		return s;
 	}
 	public Myset Intersection(Myset a)
 	{
 		Myset s = new Myset();
-		LinkedList.Node n1 = l.head;
+		LinkedList.Node n1 = l.getHead();
 		while(n1 != null)
 		{
-			if (a.IsMember(n1.data))
+			if (a.IsMember(n1.data()))
 			{
 				try
 				{
-					s.Insert(n1.data);
+					s.Insert(n1.data());
 				}
 				catch(Exception e)
 				{}
 			}
-			n1 = n1.next;
+			n1 = n1.next();
 		}
 		return s;
 	}

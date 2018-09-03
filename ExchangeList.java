@@ -1,17 +1,17 @@
 public class ExchangeList
 {
-	LinkedList l = new LinkedList();
-	int size = 0;
-	public LinkedList.Node head()
+	private LinkedList l = new LinkedList();
+	private int size = 0;
+	public LinkedList.Node getHead()
 	{
-		return l.head;
+		return l.getHead();
 	}
 	public void Insert(Exchange a)
 	{
-		l.addFront(a);
+		l.addRear(a);
 		size++;
 	}
-	public LinkedList getLL()
+	public LinkedList getList()
 	{
 		return l;
 	}

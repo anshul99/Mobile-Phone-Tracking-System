@@ -1,8 +1,8 @@
 public class MobilePhone
 {
-	int id;
-	boolean on;
-	Exchange base;
+	private int id;
+	private boolean on;
+	private Exchange base;
 	MobilePhone (int number)
 	{
 		id = number;
@@ -30,7 +30,7 @@ public class MobilePhone
 			return base;
 		}
 		else
-			throw new Exception("Phone is off");
+			throw new Exception("Base station not found; Mobile phone " + id + " is off");
 	}
 	public void setBase(Exchange b)
 	{
