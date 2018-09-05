@@ -46,11 +46,4 @@ public class MobilePhoneSet
 		}
 		return null;
 	}
-	public void switchOff(MobilePhone m)
-	{
-		if (search(m.number()) != null)
-		{
-			m.switchOff();
-		}
-	}
 }
