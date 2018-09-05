@@ -270,33 +270,25 @@ public class RoutingMapTree
 						MobilePhoneSet mset1 = e1.residentSet();
 						LinkedList l1 = mset1.mobset().list();
 						LinkedList.Node n1 = l1.getHead();
-						int cnt1 = 0;
-						int cnt2 = 0;
+						int pos = 0;
 						if (l1.getSize() == 0)
 							System.out.println("No mobiles found");
 						for(int i=0;i<l1.getSize();i++)
 						{
 							MobilePhone m = (MobilePhone)n1.data();
 							if (m.status())
-								cnt1++;
+								pos = i;
 							n1 = n1.next();
 						}
 						n1 = l1.getHead();
-						for(int i=0;i<l1.getSize();i++)
+						for(int i=0;i<pos;i++)
 						{
 							MobilePhone m = (MobilePhone)n1.data();
 							if (m.status())
-							{
-								if (cnt2 != cnt1-1)
-									System.out.print(m.number() + ", ");
-								else
-									System.out.println(m.number());
-								cnt2++;
-							}
-							if (cnt2 == cnt1)
-								break;
+								System.out.print(m.number() + ", ");
 							n1 = n1.next();
 						}
+						System.out.println(((MobilePhone)n1.data()).number());
 					}
 					else
 						System.out.println("Exchange " + a + " does not exist");
@@ -310,15 +302,5 @@ public class RoutingMapTree
 		default:
 				System.out.println("Invalid action message");
 		}
-	}
-	public static void main(String args[])
-	{
-		RoutingMapTree T = new RoutingMapTree();
-		T.performAction("addExchange 0 1");
-		T.performAction("switchOnMobile 99 1");
-		T.performAction("switchOnMobile 98 1");
-		T.performAction("queryMobilePhoneSet 0");
-		T.performAction("switchOffMobile 99");
-		T.performAction("queryMobilePhoneSet 0");
 	}
 }
