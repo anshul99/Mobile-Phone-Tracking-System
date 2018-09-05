@@ -15,7 +15,7 @@ public class RoutingMapTree
 	}
 	public boolean containsNode(Exchange a) throws Exception
 	{
-		Exchange r = getRoot();
+		Exchange r = root;
 		ExchangeList l = r.childList();
 		LinkedList.Node n = l.getHead();
 		if (r == a)
@@ -31,9 +31,43 @@ public class RoutingMapTree
 			return false;
 		}
 	}
-	public Exchange search(int id) throws Exception
+	public void switchOn(MobilePhone a,Exchange b) throws Exception
 	{
 		Exchange r = getRoot();
+		MobilePhoneSet mset = r.residentSet();
+		MobilePhone m = mset.search(a.number());
+		if (m != null)
+		{
+			Exchange base = a.location();
+			base.unregister(a);
+			while(base != getRoot())
+			{
+				base = base.getParent();
+				base.unregister(a);
+			}
+			
+		}
+		a.switchOn();
+		a.setBase(b);
+		b.register(a);
+		while(b != getRoot())
+		{
+			b = b.getParent();
+			b.register(a);
+		}	
+	}
+	public void switchOff(MobilePhone a) throws Exception
+	{
+		if (a.status())
+		{
+			a.switchOff();
+		}
+		else
+			System.out.println("Mobile Phone " + a + " is already off");
+	}
+	public Exchange search(int id) throws Exception
+	{
+		Exchange r = root;
 		ExchangeList l = r.childList();
 		LinkedList.Node n = l.getHead();
 		if (r.getId() == id)
@@ -50,56 +84,48 @@ public class RoutingMapTree
 			return null;
 		}
 	}
-	public void switchOn(MobilePhone a,Exchange b) throws Exception
-	{
-		if (!a.status())
-		{
-			a.switchOn();
-			a.setBase(b);
-			b.register(a);
-			while(b != getRoot())
-			{
-				b = b.getParent();
-				b.register(a);
-			}
-		}
-		else
-			System.out.println("Mobile Phone " + a + " is already on");
-			
-	}
-	public void switchOff(MobilePhone a) throws Exception
-	{
-		if (a.status())
-		{
-			Exchange b = a.location();
-			a.switchOff();
-			b.unregister(a);
-			while(b != getRoot())
-			{
-				b = b.getParent();
-				b.unregister(a);
-			}
-		}
-		else
-			System.out.println("Mobile Phone " + a + " is already off");
-	}
 	public void performAction(String actionMessage)
 	{
 		String[] str = actionMessage.split(" ");
 		String action;
-		int a;
-		int b;
+		int a = 0;
+		int b = 0;
 		if (str.length == 3)
 		{
 			action = str[0];
-			a = Integer.valueOf(str[1]);
-			b = Integer.valueOf(str[2]);
+			try
+			{
+				a = Integer.valueOf(str[1]);
+				b = Integer.valueOf(str[2]);
+			}
+			catch (NumberFormatException e)
+			{
+				System.out.println("Invalid action message");
+				return;
+			}
+		}
+		else if (str.length == 2)
+		{
+			action = str[0];
+			if (!(action.equals("switchOffMobile") || action.equals("queryMobilePhoneSet")))
+			{
+				System.out.println("Invalid action message");
+				return;
+			}
+			try
+			{
+				a = Integer.valueOf(str[1]);
+			}
+			catch (NumberFormatException e)
+			{
+				System.out.println("Invalid action message");
+				return;
+			}
 		}
 		else
 		{
-			action = str[0];
-			a = Integer.valueOf(str[1]);
-			b = 0;
+			System.out.println("Invalid action message");
+			return;
 		}
 		switch(action)
 		{
@@ -209,6 +235,7 @@ public class RoutingMapTree
 			{
 				try
 				{
+					System.out.print(actionMessage + ": ");
 					Exchange e1 = search(a);
 					if (e1 != null)
 					{
@@ -236,17 +263,38 @@ public class RoutingMapTree
 			{
 				try
 				{
+					System.out.print(actionMessage + ": ");
 					Exchange e1 = search(a);
 					if (e1 != null)
 					{
 						MobilePhoneSet mset1 = e1.residentSet();
 						LinkedList l1 = mset1.mobset().list();
 						LinkedList.Node n1 = l1.getHead();
+						int cnt1 = 0;
+						int cnt2 = 0;
 						if (l1.getSize() == 0)
 							System.out.println("No mobiles found");
 						for(int i=0;i<l1.getSize();i++)
 						{
-							System.out.println(((MobilePhone)n1.data()).number());
+							MobilePhone m = (MobilePhone)n1.data();
+							if (m.status())
+								cnt1++;
+							n1 = n1.next();
+						}
+						n1 = l1.getHead();
+						for(int i=0;i<l1.getSize();i++)
+						{
+							MobilePhone m = (MobilePhone)n1.data();
+							if (m.status())
+							{
+								if (cnt2 != cnt1-1)
+									System.out.print(m.number() + ", ");
+								else
+									System.out.println(m.number());
+								cnt2++;
+							}
+							if (cnt2 == cnt1)
+								break;
 							n1 = n1.next();
 						}
 					}
@@ -259,6 +307,18 @@ public class RoutingMapTree
 				}
 			}
 			break;
+		default:
+				System.out.println("Invalid action message");
 		}
+	}
+	public static void main(String args[])
+	{
+		RoutingMapTree T = new RoutingMapTree();
+		T.performAction("addExchange 0 1");
+		T.performAction("switchOnMobile 99 1");
+		T.performAction("switchOnMobile 98 1");
+		T.performAction("queryMobilePhoneSet 0");
+		T.performAction("switchOffMobile 99");
+		T.performAction("queryMobilePhoneSet 0");
 	}
 }
