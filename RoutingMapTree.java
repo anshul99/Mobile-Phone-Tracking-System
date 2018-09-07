@@ -63,7 +63,7 @@ public class RoutingMapTree
 			a.switchOff();
 		}
 		else
-			System.out.println("Mobile Phone " + a + " is already off");
+			throw new Exception("Mobile Phone " + a.number() + " is already off");
 	}
 	public Exchange search(int id) throws Exception
 	{
@@ -84,10 +84,11 @@ public class RoutingMapTree
 			return null;
 		}
 	}
-	public void performAction(String actionMessage)
+	public String performAction(String actionMessage)
 	{
 		String[] str = actionMessage.split(" ");
 		String action;
+		String ans = actionMessage + ": ";
 		int a = 0;
 		int b = 0;
 		if (str.length == 3)
@@ -100,8 +101,7 @@ public class RoutingMapTree
 			}
 			catch (NumberFormatException e)
 			{
-				System.out.println("Invalid action message");
-				return;
+				return ans + "Invalid action message";
 			}
 		}
 		else if (str.length == 2)
@@ -109,8 +109,7 @@ public class RoutingMapTree
 			action = str[0];
 			if (!(action.equals("switchOffMobile") || action.equals("queryMobilePhoneSet")))
 			{
-				System.out.println("Invalid action message");
-				return;
+				return ans + "Invalid action message";
 			}
 			try
 			{
@@ -118,14 +117,12 @@ public class RoutingMapTree
 			}
 			catch (NumberFormatException e)
 			{
-				System.out.println("Invalid action message");
-				return;
+				return ans + "Invalid action message";
 			}
 		}
 		else
 		{
-			System.out.println("Invalid action message");
-			return;
+			return ans + "Invalid action message";
 		}
 		switch(action)
 		{
@@ -136,7 +133,7 @@ public class RoutingMapTree
 					Exchange e1 = new Exchange(b);
 					if (search(b) != null)
 					{
-						System.out.println("Exchange " + b + " already exists");
+						return ans + "Exchange " + b + " already exists";
 					}
 					else
 					{
@@ -150,21 +147,21 @@ public class RoutingMapTree
 							}
 							else
 							{
-								System.out.println("Exchange " + a + " does not exist");
+								return ans + "Exchange " + a + " does not exist";
 							}
 						}
 						catch (Exception ex)
 						{
-							System.out.println(ex.getMessage());
+							return ans + ex.getMessage();
 						}
 					}
 				}
 				catch (Exception ex)
 				{
-					System.out.println(ex.getMessage());
+					return ans + ex.getMessage();
 				}
 			}
-			break;
+			return "";
 		case "switchOnMobile":
 			{
 				Exchange r = getRoot();
@@ -178,7 +175,7 @@ public class RoutingMapTree
 				}
 				catch (Exception ex)
 				{
-					System.out.println(ex.getMessage());
+					return ans + ex.getMessage();
 				}
 				if (mob == null)
 				{
@@ -187,7 +184,7 @@ public class RoutingMapTree
 						Exchange e = search(b);
 						if (e != null && e.childList().getSize() != 0)
 						{
-							System.out.println("Exchange " + b + " is not a base station");
+							return ans + "Exchange " + b + " is not a base station";
 						}
 						else
 						{
@@ -197,20 +194,22 @@ public class RoutingMapTree
 								switchOn(m,e);
 							}
 							else
-								System.out.println("Exchange " + b + " does not exist");
+							{
+								return ans + "Exchange " + b + " does not exist";
+							}
 						}
 					} 
 					catch (Exception ex) 
 					{
-						System.out.println(ex.getMessage());
+						return ans + ex.getMessage();
 					}
 				}
 				else
 				{
-					System.out.println("Mobile phone " + a + " is already registered with exchange " + base.getId());
+					return ans + "Mobile phone " + a + " is already registered with exchange " + base.getId();
 				}
 			}
-			break;
+			return "";
 		case "switchOffMobile":
 			{
 				Exchange r = getRoot();
@@ -224,46 +223,46 @@ public class RoutingMapTree
 					}
 					catch (Exception ex)
 					{
-						System.out.println(ex.getMessage());
+						return ans + ex.getMessage();
 					}
 				}
 				else
-					System.out.println("Mobile phone " + a + " not found");
+				{
+					return ans + "Mobile phone " + a + " not found";
+				}
 			}
-			break;
+			return "";
 		case "queryNthChild":
 			{
 				try
 				{
-					System.out.print(actionMessage + ": ");
 					Exchange e1 = search(a);
 					if (e1 != null)
 					{
 						try
 						{
 							Exchange e2 = e1.child(b);
-							int id = e2.getId();
-							System.out.println(id);
+							return ans + e2.getId();
 						}
 						catch (Exception ex)
 						{
-							System.out.println(ex.getMessage());
+							return ans + ex.getMessage();
 						}
 					}
 					else
-						System.out.println("Exchange " + a + " does not exist");
+					{
+						return ans + "Exchange " + a + " does not exist";
+					}
 				}
 				catch (Exception ex)
 				{
-					System.out.println(ex.getMessage());
+					return ans + ex.getMessage();
 				}
 			}
-			break;
 		case "queryMobilePhoneSet":
 			{
 				try
 				{
-					System.out.print(actionMessage + ": ");
 					Exchange e1 = search(a);
 					if (e1 != null)
 					{
@@ -271,13 +270,18 @@ public class RoutingMapTree
 						LinkedList l1 = mset1.mobset().list();
 						LinkedList.Node n1 = l1.getHead();
 						int pos = 0;
+						int cnt = 0;
+						String s = "";
 						if (l1.getSize() == 0)
-							System.out.println("No mobiles found");
+							return ans + "No mobiles found";
 						for(int i=0;i<l1.getSize();i++)
 						{
 							MobilePhone m = (MobilePhone)n1.data();
 							if (m.status())
+							{
 								pos = i;
+								cnt += 1;
+							}
 							n1 = n1.next();
 						}
 						n1 = l1.getHead();
@@ -285,22 +289,29 @@ public class RoutingMapTree
 						{
 							MobilePhone m = (MobilePhone)n1.data();
 							if (m.status())
-								System.out.print(m.number() + ", ");
+								s += m.number() + ", ";
 							n1 = n1.next();
 						}
-						System.out.println(((MobilePhone)n1.data()).number());
+						MobilePhone m = (MobilePhone)n1.data();
+						if (m.status())
+							s += m.number();
+						if (cnt > 0)
+							return ans + s;
+						else
+							return ans + "No mobiles found";
 					}
 					else
-						System.out.println("Exchange " + a + " does not exist");
+					{
+						return ans + "Exchange " + a + " does not exist";
+					}
 				}
 				catch (Exception ex)
 				{
-					System.out.println(ex.getMessage());
+					return ans + ex.getMessage();
 				}
 			}
-			break;
 		default:
-				System.out.println("Invalid action message");
+				return ans + "Invalid action message";
 		}
 	}
 }
