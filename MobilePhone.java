@@ -30,7 +30,7 @@ public class MobilePhone
 			return base;
 		}
 		else
-			throw new Exception("Base station not found; Mobile phone " + id + " is off");
+			throw new Exception("Error - Mobile phone with identifier " + id + " is currently swithed off");
 	}
 	public void setBase(Exchange b)
 	{

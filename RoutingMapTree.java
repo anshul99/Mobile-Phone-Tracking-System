@@ -84,6 +84,123 @@ public class RoutingMapTree
 			return null;
 		}
 	}
+	public Exchange findPhone(MobilePhone m) throws Exception
+	{
+		Exchange r = getRoot();
+		MobilePhoneSet mset = r.residentSet();
+		MobilePhone a = mset.search(m.number());
+		if (a != null)
+			return a.location();
+		else
+			throw new Exception("Error - No mobile phone with identifier " + m.number() + " found in the network");
+	}
+	public Exchange lowestRouter(Exchange a, Exchange b) throws Exception
+	{
+		Exchange e1 = search(a.getId());
+		Exchange e2 = search(b.getId());
+		if (e1.numChildren() != 0 || e2.numChildren() != 0)
+			throw new Exception("Error - Please enter base exchange");
+		if (e1 == e2)
+			return a;
+		else
+		{
+			Exchange c = e1.getParent();
+			while(!c.isRoot())
+			{
+				for(int i=0;i<c.numChildren();i++)
+				{
+					RoutingMapTree t = c.subtree(i);
+					if (t.containsNode(e2))
+						return c;
+				}
+				c = c.getParent();
+			}
+			return getRoot();
+		}
+	}
+	public ExchangeList routeCall(MobilePhone a, MobilePhone b) throws Exception
+	{
+		ExchangeList route = new ExchangeList();
+		Exchange r = getRoot();
+		MobilePhoneSet mset = r.residentSet();
+		MobilePhone m1 = mset.search(a.number());
+		MobilePhone m2 = mset.search(b.number());
+		if (m1 != null && m2 != null)
+		{
+			Exchange e1;
+			Exchange e2;
+			try
+			{
+				e1 = m1.location();
+			}
+			catch (Exception ex)
+			{
+				throw new Exception("Error - Mobile phone with identifier " + a.number() + " is currently switched off");
+			}
+			try
+			{
+				e2 = m2.location();
+			}
+			catch (Exception ex)
+			{
+				throw new Exception("Error - Mobile phone with identifier " + b.number() + " is currently switched off");
+			}
+			Exchange e3 = lowestRouter(e1,e2);
+			while (e1 != e3)
+			{
+				route.Insert(e1);
+				e1 = e1.getParent();
+			}
+			while (e3 != e2)
+			{
+				route.Insert(e3);
+				for (int i=0;i<e3.numChildren();i++)
+				{
+					if (e3.subtree(i).containsNode(e2))
+					{
+						e3 = e3.child(i);
+						break;
+					}
+				}
+			}
+			route.Insert(e2);
+			return route;
+		}
+		else
+		{
+			if (m1 == null)
+				throw new Exception("Error - No mobile phone with identifier " + a.number());
+			else if (m2 == null)
+				throw new Exception("Error - No mobile phone with identifier " + b.number());
+		}
+		return null;
+	}
+	public void movePhone(MobilePhone a, Exchange b) throws Exception
+	{
+		Exchange r = getRoot();
+		MobilePhoneSet mset = r.residentSet();
+		MobilePhone m = mset.search(a.number());
+		Exchange c = search(b.getId());
+		if (m != null && c != null)
+		{
+			if (m.status())
+			{
+				if (c.numChildren() == 0)
+					switchOn(m,c);
+				else
+					throw new Exception("Error - " + b.getId() + " is not a base exchange");
+			}
+			else
+				throw new Exception("Error - Mobile phone " + a.number() + " is off");
+		}
+		else
+		{
+			if (m == null)
+				throw new Exception("Error - No mobile with identifier " + a.number());
+			if (c == null)
+				throw new Exception("Error - No exchange with identifier " + b.getId());
+		}
+	}
 	public String performAction(String actionMessage)
 	{
 		String[] str = actionMessage.split(" ");
@@ -107,7 +224,7 @@ public class RoutingMapTree
 		else if (str.length == 2)
 		{
 			action = str[0];
-			if (!(action.equals("switchOffMobile") || action.equals("queryMobilePhoneSet")))
+			if (!(action.equals("switchOffMobile") || action.equals("queryMobilePhoneSet") || action.equals("findPhone")))
 			{
 				return ans + "Invalid action message";
 			}
@@ -309,6 +426,74 @@ public class RoutingMapTree
 				{
 					return ans + ex.getMessage();
 				}
+			}
+		case "findPhone":
+			{
+				MobilePhone m = new MobilePhone(a);
+				try
+				{
+					Exchange e = findPhone(m);
+					return "queryFindPhone " + a + ": " + e.getId();
+				}
+				catch (Exception ex)
+				{
+					return "queryFindPhone " + a + ": " + ex.getMessage();
+				}
+			}
+		case "lowestRouter":
+			{	
+				Exchange e1 = new Exchange(a);
+				Exchange e2 = new Exchange(b);
+				try
+				{
+					Exchange e3 = lowestRouter(e1,e2);
+					return "queryLowestRouter " + a + " " + b + ": " + e3.getId();
+				} 
+				catch (Exception ex)
+				{
+					return "queryLowestRouter " + a + " " + b + ": " + ex.getMessage();
+				}
+			}
+		case "findCallPath":
+			{
+				MobilePhone m1 = new MobilePhone(a);
+				MobilePhone m2 = new MobilePhone(b);
+				if (a == b)
+				{
+					return "queryFindCallPath " + a + " " + b + ": " + "Error - Please enter different mobiles";
+				}
+				try
+				{
+					ExchangeList elist = routeCall(m1,m2);
+					String s = "";
+					LinkedList.Node n = elist.getHead();
+					for(int i=0;i<elist.getSize()-1;i++)
+					{
+						s += ((Exchange)n.data()).getId();
+						s += ", ";
+						n = n.next();
+					}
+					s += ((Exchange)n.data()).getId();
+					return "queryFindCallPath " + a + " " + b + ": " + s;
+				}
+				catch (Exception ex)
+				{
+					return "queryFindCallPath " + a + " " + b + ": " + ex.getMessage();
+				}
+			}
+		case "movePhone":
+			{
+				try
+				{
+					MobilePhone m = new MobilePhone(a);
+					Exchange e = new Exchange(b);
+					movePhone(m,e);
+				}
+				catch (Exception ex)
+				{
+					return ans + ex.getMessage();
+				}
+				return "";
 			}
 		default:
 				return ans + "Invalid action message";
